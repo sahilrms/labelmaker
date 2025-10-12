@@ -1,13 +1,7 @@
 // components/LabelSheet.js
 import Label from './Label';
 
-export default function LabelSheet({ items = [], batchNumber }) {
-  // Ensure we have exactly 8 labels (fill with empty if needed)
-  const labels = [...items];
-  while (labels.length < 8) {
-    labels.push({});
-  }
-
+export default function LabelSheet({ items = [], batchNumbers = {} }) {
   // Convert mm to inches (1mm = 0.0393701in)
   const mmToIn = (mm) => `${mm * 0.0393701}in`;
 
@@ -24,19 +18,19 @@ export default function LabelSheet({ items = [], batchNumber }) {
   // Label dimensions
   const labelWidth = 102; // mm
   const labelHeight = 68; // mm
-  const labelPadding = {
-    top: 4, // mm
-    right: 3, // mm
-    bottom: 4, // mm
-    left: 3, // mm
-  };
+
+  // Ensure we have exactly 8 labels (fill with empty if needed)
+  const labels = [...items];
+  while (labels.length < 8) {
+    labels.push({});
+  }
 
   // Calculate available space for labels
   const availableWidth = pageWidth - pagePadding.left - pagePadding.right;
   const availableHeight = pageHeight - pagePadding.top - pagePadding.bottom;
 
   // Calculate gaps between labels
-  const gapX = (availableWidth - (2 * labelWidth)) / 1; // 1 gap between 2 columns
+  const gapX = (availableWidth - (2 * labelWidth)); // No gap, just padding
   const gapY = (availableHeight - (4 * labelHeight)) / 3; // 3 gaps between 4 rows
 
   return (
@@ -55,23 +49,23 @@ export default function LabelSheet({ items = [], batchNumber }) {
         margin: '0 auto',
       }}
     >
-      {labels.slice(0, 8).map((item, index) => (
+      {labels.map((item, index) => (
         <div 
           key={index} 
           style={{
-            padding: `${mmToIn(labelPadding.top)} ${mmToIn(labelPadding.right)} ${mmToIn(labelPadding.bottom)} ${mmToIn(labelPadding.left)}`,
-            boxSizing: 'border-box',
             border: '1px solid #eee',
             overflow: 'hidden',
+            position: 'relative',
+            boxSizing: 'border-box'
           }}
         >
           {item.name ? (
             <Label 
               item={item} 
-              batchNumber={item.batchNumber || batchNumber} 
+              batchNumber={batchNumbers[item.name] || item.batchNumber} 
               dimensions={{
-                width: labelWidth - labelPadding.left - labelPadding.right,
-                height: labelHeight - labelPadding.top - labelPadding.bottom
+                width: labelWidth - 2, // Account for border
+                height: labelHeight - 2 // Account for border
               }}
             />
           ) : (

@@ -1,84 +1,70 @@
-/* Custom styles only */
-.sidebar-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-
-.sidebar-scrollbar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
-
-.sidebar-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-}
-
-.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* Print-specific styles */
+/* ================================
+   Print Styles
+================================ */
 @media print {
-  body * {
-    visibility: hidden;
-  }
-  .print-section, .print-section * {
-    visibility: visible;
-  }
-  .print-section {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-  }
-  .no-print {
-    display: none !important;
-  }
-}
-@media print {
+  /* Page setup */
   @page {
-    size: A4;
+    size: 210mm 297mm; /* A4 */
     margin: 0;
   }
-  body {
-    margin: 0;
-    padding: 0;
-    background: white;
-  }
-  .no-print {
-    display: none !important;
-  }
-  .print-section {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-  }
-}
 
-@media print {
-  @page {
-    size: 210mm 297mm; /* A4 size */
-    margin: 0;
-  }
+  /* Reset body styles */
   body {
-    margin: 0;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
     background: white;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the print sections */
+  .print-section,
+  .print-section * {
+    visibility: visible;
+  }
+
+  /* Print section layout */
+  .print-section {
+    position: relative !important;
+    width: 100% !important;
+    min-height: 297mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+
+  /* Ensure proper page breaks */
+  .print-section:last-child {
+    page-break-after: auto;
+  }
+
+  /* Hide non-printable elements */
   .no-print {
     display: none !important;
+    visibility: hidden !important;
   }
-  .print-section {
-    width: 210mm;
-    height: 297mm;
+
+  /* Remove any additional margins */
+  @page :first, @page :left, @page :right {
     margin: 0;
-    padding: 0;
-    page-break-after: always;
   }
-  /* Ensure each label sheet is on a new page */
-  .print-section:not(:last-child) {
-    page-break-after: always;
+
+  /* Ensure images and other elements print properly */
+  img {
+    max-width: 100% !important;
+  }
+
+  /* Ensure table borders print */
+  table {
+    border-collapse: collapse;
+  }
+  table, th, td {
+    border: 1px solid black;
   }
 }

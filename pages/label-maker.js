@@ -8,7 +8,7 @@ const LabelForm = dynamic(() => import('../components/LabelForm'), {
 
 export default function LabelMaker() {
   return (
-    <div className="container mx-auto p-4 print-section">
+    <div >
       <h1 className="text-2xl font-bold mb-6 text-center no-print">Label Maker</h1>
       <LabelForm />
     </div>
