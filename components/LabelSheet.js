@@ -1,7 +1,8 @@
 // components/LabelSheet.js
+import React, { forwardRef } from 'react';
 import Label from './Label';
 
-export default function LabelSheet({ items = [], batchNumbers = {} }) {
+export default forwardRef(function LabelSheet({ items = [], batchNumbers = {} }, ref) {
   // Convert mm to inches (1mm = 0.0393701in)
   const mmToIn = (mm) => `${mm * 0.0393701}in`;
 
@@ -34,8 +35,9 @@ export default function LabelSheet({ items = [], batchNumbers = {} }) {
   const gapY = (availableHeight - (4 * labelHeight)) / 3; // 3 gaps between 4 rows
 
   return (
-    <div 
-      className="print-section" 
+    <div
+      ref={ref}
+      className="print-section"
       style={{
         width: mmToIn(pageWidth),
         height: mmToIn(pageHeight),
@@ -50,8 +52,8 @@ export default function LabelSheet({ items = [], batchNumbers = {} }) {
       }}
     >
       {labels.map((item, index) => (
-        <div 
-          key={index} 
+        <div
+          key={index}
           style={{
             border: '1px solid #eee',
             overflow: 'hidden',
@@ -60,9 +62,9 @@ export default function LabelSheet({ items = [], batchNumbers = {} }) {
           }}
         >
           {item.name ? (
-            <Label 
-              item={item} 
-              batchNumber={batchNumbers[item.name] || item.batchNumber} 
+            <Label
+              item={item}
+              batchNumber={batchNumbers[item.name] || item.batchNumber}
               dimensions={{
                 width: labelWidth - 2, // Account for border
                 height: labelHeight - 2 // Account for border
@@ -80,4 +82,4 @@ export default function LabelSheet({ items = [], batchNumbers = {} }) {
       ))}
     </div>
   );
-}
+})
