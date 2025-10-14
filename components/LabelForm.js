@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { trackPrint } from "../utils/printTracking";
 import { useReactToPrint } from "react-to-print";
 import LabelSheet from "./LabelSheet";
 
@@ -133,15 +134,23 @@ export default function LabelForm() {
         .no-print {
           display: none !important;
         }
-      }
     `,
     onBeforeGetContent: () => Promise.resolve(),
     onAfterPrint: () => console.log("✅ Print completed"),
   });
 
-  function handlePrintAll() {
+  const handlePrintAll = async () => {
     if (!printRef.current || !printRef.current.innerHTML.trim()) {
       alert("Nothing to print!");
+      return;
+    }
+
+    // Track the print event
+    const uniqueBatchNumbers = [...new Set(itemList.map(item => batchNumbers[item.name] || generateBatchNumber()))];
+    const trackingSuccess = await trackPrint(uniqueBatchNumbers[0], itemList);
+    
+    if (!trackingSuccess) {
+      alert('Failed to track print. Please try again.');
       return;
     }
     const printWindow = window.open('', '_blank');
