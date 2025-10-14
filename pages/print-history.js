@@ -1,6 +1,4 @@
-// pages/print-history.js
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 
 export default function PrintHistory() {
@@ -33,45 +31,49 @@ export default function PrintHistory() {
   if (error) return <Layout>Error: {error}</Layout>;
 
   return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Print History</h1>
-        
-        {history.length === 0 ? (
-          <p>No print history found.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="py-2 px-4 border">Date</th>
-                  <th className="py-2 px-4 border">Batch Number</th>
-                  <th className="py-2 px-4 border">Items</th>
-                  <th className="py-2 px-4 border">Total Labels</th>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Print History</h1>
+      
+      {history.length === 0 ? (
+        <p>No print history found.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="py-2 px-4 border">Item Name</th>
+                <th className="py-2 px-4 border">Batch Number</th>
+                <th className="py-2 px-4 border">Pack Date</th>
+                <th className="py-2 px-4 border">Expiry Date</th>
+                <th className="py-2 px-4 border">Qty</th>
+                <th className="py-2 px-4 border">Price</th>
+                <th className="py-2 px-4 border">Print Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.map((record) => (
+                <tr key={record._id || record.id} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border">{record.productName}</td>
+                  <td className="py-2 px-4 border">{record.batchNumber}</td>
+                  <td className="py-2 px-4 border">
+                    {record.packingDate ? new Date(record.packingDate).toLocaleDateString() : 'N/A'}
+                  </td>
+                  <td className="py-2 px-4 border">
+                    {record.expiryDate ? new Date(record.expiryDate).toLocaleDateString() : 'N/A'}
+                  </td>
+                  <td className="py-2 px-4 border text-center">{record.quantity || 1}</td>
+                  <td className="py-2 px-4 border text-right">
+                    {record.price ? `₹${record.price.toFixed(2)}` : 'N/A'}
+                  </td>
+                  <td className="py-2 px-4 border">
+                    {record.printDate ? formatDate(record.printDate) : 'N/A'}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {history.map((record) => (
-                  <tr key={record.id} className="hover:bg-gray-50">
-                    <td className="py-2 px-4 border">{formatDate(record.date)}</td>
-                    <td className="py-2 px-4 border">{record.batchNumber}</td>
-                    <td className="py-2 px-4 border">
-                      <ul className="list-disc pl-5">
-                        {record.items.map((item, idx) => (
-                          <li key={idx}>
-                            {item.name} (x{item.quantity || 1})
-                          </li>
-                        ))}
-                      </ul>
-                    </td>
-                    <td className="py-2 px-4 border text-center">
-                      {record.totalItems || record.items.length}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }
