@@ -172,11 +172,3 @@ This project is licensed under the **MIT License**.
 
 For support, please open an issue in the [GitHub repository](#).
 
----
-
-```
-
----
-
-✅ Just copy the above code block, paste it into your project’s `README.md` file, and it’ll render perfectly on GitHub or any Markdown viewer.
-```
