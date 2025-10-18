@@ -12,7 +12,11 @@ export default function LabelForm() {
     mrp: "",
     quantity: 1,
     packingDate: new Date().toISOString().split("T")[0], // default today
-    expiryDate: "",
+    expiryDate: (() => {
+      const nextYear = new Date();
+      nextYear.setFullYear(nextYear.getFullYear() + 1);
+      return nextYear.toISOString().split("T")[0];
+    })(), // default 1 year from today
   });
   const [blankLabels, setBlankLabels] = useState(0);
   const [itemList, setItemList] = useState([]);
