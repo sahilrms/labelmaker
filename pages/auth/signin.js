@@ -42,11 +42,31 @@ const buttonTap = {
   scale: 0.98
 };
 
+const successVariant = {
+  hidden: { scale: 0.8, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      delay: 0.2,
+      duration: 0.5
+    }
+  },
+  exit: {
+    scale: 0.8,
+    opacity: 0,
+    transition: {
+      duration: 0.3
+    }
+  }
+};
+
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -54,27 +74,85 @@ export default function SignIn() {
     setError('');
     setIsLoading(true);
 
-    const result = await signIn('credentials', {
-      redirect: false,
-      email,
-      password,
-      callbackUrl: '/dashboard',
-    });
+    try {
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+        callbackUrl: '/dashboard',
+      });
 
-    setIsLoading(false);
+      if (result.error) {
+        throw new Error(result.error);
+      }
 
-    if (result.error) {
-      setError(result.error);
-    } else {
-      router.push(result.url || '/dashboard');
+      // Show success animation
+      setSuccess(true);
+      
+      // Redirect after animation
+      setTimeout(() => {
+        router.push(result.url || '/dashboard');
+      }, 1500);
+
+    } catch (err) {
+      setError(err.message || 'Sign in failed. Please try again.');
+      setIsLoading(false);
     }
   };
 
+  // Success state
+  if (success) {
+    return (
+      <motion.div 
+        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 px-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <motion.div
+          className="text-center"
+          variants={successVariant}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+        >
+          <motion.div 
+            className="mx-auto flex items-center justify-center h-16 w-16 bg-green-100 rounded-full mb-6"
+            animate={{ 
+              scale: [1, 1.2, 1],
+              rotate: [0, 10, -10, 0]
+            }}
+            transition={{ 
+              duration: 0.6,
+              ease: "easeInOut"
+            }}
+          >
+            <svg
+              className="h-8 w-8 text-green-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </motion.div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back!</h2>
+          <p className="text-gray-600">Taking you to your dashboard...</p>
+        </motion.div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div 
+      className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4"
     >
       <Head>
         <title>Login | Label Maker</title>
@@ -290,7 +368,7 @@ export default function SignIn() {
               className="mt-6 grid grid-cols-2 gap-3"
               variants={container}
             >
-              {['GitHub', 'Google'].map((provider, index) => (
+              {['GitHub', 'Google'].map((provider) => (
                 <motion.button
                   key={provider}
                   type="button"
