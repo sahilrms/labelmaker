@@ -1,50 +1,55 @@
-import { useState } from 'react';
-import Sidebar from './Sidebar';
+// components/Layout.js
+import { signOut, useSession } from 'next-auth/react';
+import Link from 'next/link';
 
-const Layout = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+export default function Layout({ children }) {
+  const { data: session } = useSession();
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white shadow-sm">
-          <div className="flex items-center justify-between px-6 py-4">
-            <h1 className="text-xl font-semibold text-gray-900">
-              {sidebarOpen ? '' : 'LabelPro Dashboard'}
-            </h1>
-            <div className="flex items-center space-x-4">
+      {/* Sidebar */}
+      <div className="bg-gray-800 text-white w-64 flex flex-col">
+        <div className="p-4 border-b border-gray-700">
+          <h1 className="text-xl font-bold">Label Maker</h1>
+        </div>
+        
+        {/* Navigation Links */}
+        <nav className="flex-1 p-4 space-y-2">
+          <Link href="/dashboard" className="block py-2 px-4 rounded hover:bg-gray-700">
+            Dashboard
+          </Link>
+          <Link href="/label-maker" className="block py-2 px-4 rounded hover:bg-gray-700">
+            Print Labels
+          </Link>
+          <Link href="/print-history" className="block py-2 px-4 rounded hover:bg-gray-700">
+            Print History
+          </Link>
+          {/* Add more navigation links as needed */}
+        </nav>
+
+        {/* User Info and Logout */}
+        {session && (
+          <div className="p-4 border-t border-gray-700">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">{session.user.email}</p>
+                <p className="text-xs text-gray-400">{session.user.role}</p>
+              </div>
               <button
-                onClick={toggleSidebar}
-                className="text-gray-500 hover:text-gray-600 focus:outline-none"
+                onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                className="text-sm text-gray-300 hover:text-white"
               >
-                <svg 
-                  className="h-6 w-6" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} 
-                  />
-                </svg>
+                Sign out
               </button>
             </div>
           </div>
-        </header>
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
-          {children}
-        </main>
+        )}
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {children}
       </div>
     </div>
   );
-};
-
-export default Layout;
+}

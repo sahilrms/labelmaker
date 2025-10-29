@@ -1,19 +1,31 @@
-// pages/_app.js
+import { SessionProvider } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Layout from '../components/Layout';
 import '../styles/globals.css';
 
+const publicPages = ['/auth/signin', '/auth/register'];
+
 function MyApp({ Component, pageProps }) {
+  const router = useRouter();
+  const isPublicPage = publicPages.includes(router.pathname);
+  const { session, ...restPageProps } = pageProps;
+
   return (
-    <div suppressHydrationWarning>
+    <SessionProvider session={session}>
       <Head>
         <title>Label Maker</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
       </Head>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </div>
+      {isPublicPage ? (
+        <Component {...restPageProps} />
+      ) : (
+        <Layout>
+          <Component {...restPageProps} />
+        </Layout>
+      )}
+    </SessionProvider>
   );
 }
 
