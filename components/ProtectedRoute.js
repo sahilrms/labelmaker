@@ -1,31 +1,43 @@
-import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+// components/ProtectedRoute.js
+'use client';
 
-export default function ProtectedRoute({ children, requiredRole }) {
-  const { data: session, status } = useSession();
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import LoadingSpinner from './ui/LoadingSpinner';
+
+export default function ProtectedRoute({ children, adminOnly = false }) {
+  const { isAuthenticated, isLoading, session } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(router.asPath)}`);
-    } else if (status === 'authenticated' && requiredRole && session?.user?.role !== requiredRole) {
-      // Redirect to unauthorized or dashboard if user doesn't have the required role
+    if (!isLoading && !isAuthenticated) {
+      router.push('/auth/signin');
+    }
+    
+    if (!isLoading && isAuthenticated && adminOnly && !session?.user?.isAdmin) {
       router.push('/unauthorized');
     }
-  }, [status, router, session, requiredRole]);
+  }, [isAuthenticated, isLoading, router, session, adminOnly]);
 
-  if (status === 'loading' || status === 'unauthenticated') {
+  if (isLoading || !isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
 
-  if (requiredRole && session?.user?.role !== requiredRole) {
-    return null; // Or a custom unauthorized component
+  if (adminOnly && !session?.user?.isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600">Access Denied</h2>
+          <p className="mt-2">You don't have permission to access this page.</p>
+        </div>
+      </div>
+    );
   }
 
-  return <>{children}</>;
+  return children;
 }

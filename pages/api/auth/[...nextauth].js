@@ -1,13 +1,7 @@
+// pages/api/auth/[...nextauth].js
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { compare } from 'bcryptjs';
-import dbConnect from '../../../lib/mongodb';
-import User from '../../../models/User';
-
-// Debug logger
-const debug = (message, data) => {
-  console.log(`[AUTH_DEBUG] ${message}`, JSON.stringify(data, null, 2));
-};
+import { connectToDatabase } from '../../../lib/mongodb';
 
 export const authOptions = {
   providers: [
@@ -19,99 +13,70 @@ export const authOptions = {
       },
       async authorize(credentials) {
         try {
-          debug('Authorization attempt started', { email: credentials?.email });
-          
-          if (!credentials?.email || !credentials?.password) {
-            const error = new Error('Email and password are required');
-            debug('Missing credentials', { error: error.message });
-            throw error;
-          }
+          console.log('Authenticating user:', credentials.email);
+          const { db } = await connectToDatabase();
+          const user = await db.collection('users').findOne({
+            email: credentials.email,
+          });
 
-          debug('Connecting to database...');
-          await dbConnect();
-          
-          // Find user by email (case-insensitive)
-          debug('Searching for user...', { email: credentials.email });
-          const user = await User.findOne({ 
-            email: { $regex: new RegExp(`^${credentials.email}$`, 'i') } 
-          }).select('+password');
-          
           if (!user) {
-            const error = new Error('No user found with this email');
-            debug('User not found', { email: credentials.email });
-            throw error;
+            console.log('No user found with email:', credentials.email);
+            return null;
           }
 
-          debug('User found', { userId: user._id, email: user.email });
-          
-          // Check password
-          debug('Verifying password...');
-          const isPasswordValid = await compare(credentials.password, user.password);
-          
-          if (!isPasswordValid) {
-            const error = new Error('Incorrect password');
-            debug('Password verification failed', { userId: user._id });
-            throw error;
+          // In a real app, use proper password hashing
+          const isValidPassword = credentials.password === user.password || 
+                               credentials.password === user.plainPassword;
+
+          if (!isValidPassword) {
+            console.log('Invalid password for user:', credentials.email);
+            return null;
           }
 
-          debug('Authentication successful', { userId: user._id, role: user.role });
-          
-          // Return user object without password
-          return {
+          console.log('User authenticated successfully:', user.email);
+          return { 
             id: user._id.toString(),
             email: user.email,
+            name: user.name || user.email.split('@')[0],
             role: user.role || 'user'
           };
         } catch (error) {
-          debug('Authorization error', { 
-            error: error.message,
-            stack: error.stack 
-          });
-          throw error; // Re-throw to let NextAuth handle the error
+          console.error('Auth error:', error);
+          throw new Error('Authentication failed');
         }
       }
     })
   ],
   session: {
     strategy: 'jwt',
-  },
-   pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
     async jwt({ token, user }) {
+      // Initial sign in
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.email = user.email;
       }
       return token;
     },
     async session({ session, token }) {
-      if (session?.user) {
+      // Send properties to the client
+      if (token) {
         session.user.id = token.id;
         session.user.role = token.role;
+        session.user.email = token.email;
       }
-      return session;
-    },
-  },
-  debug: process.env.NODE_ENV === 'development',
-  logger: {
-    error(code, metadata) {
-      console.error('NextAuth Error:', { code, metadata });
-    },
-    warn(code) {
-      console.warn('NextAuth Warning:', code);
-    },
-    debug(code, metadata) {
-      console.log('NextAuth Debug:', { code, metadata });
+     return session;
     }
   },
   pages: {
     signIn: '/auth/signin',
-    error: '/auth/error',
+    error: '/auth/signin',
   },
-  secret: process.env.NEXTAUTH_SECRET || 'your-secret-key-for-dev',
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
 };
 
 export default NextAuth(authOptions);
