@@ -14,6 +14,7 @@ export default function CounterList({
   const [isDeleting, setIsDeleting] = useState(null);
   const [editingCounter, setEditingCounter] = useState(null);
   const [showAddSale, setShowAddSale] = useState(false);
+  const [selectedCounterName, setSelectedCounterName] = useState(null);
 
   const handleDelete = async (counterId, e) => {
     e.stopPropagation();
@@ -62,47 +63,7 @@ export default function CounterList({
 
   return (
     <div className="space-y-6">
-      {/* Edit Counter Modal */}
-      {editingCounter && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Edit Counter</h2>
-              <CounterForm
-                initialData={editingCounter}
-                onSubmit={handleUpdateCounter}
-                onCancel={() => setEditingCounter(null)}
-                isEditing={true}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add Sale Form */}
-      {showAddSale && selectedCounter && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6 w-300">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium">Record New Sale</h3>
-            <button
-              onClick={() => setShowAddSale(false)}
-              className="text-gray-400 hover:text-gray-500"
-            >
-              <span className="sr-only">Close</span>
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <AddSaleForm
-            counterId={selectedCounter}
-            onSuccess={() => setShowAddSale(false)}
-            onCancel={() => setShowAddSale(false)}
-          />
-        </div>
-      )}
-
-      {/* Counters List */}
+       {/* Counters List */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="divide-y divide-gray-200">
           {counters.map((counter) => (
@@ -144,6 +105,7 @@ export default function CounterList({
                     onClick={() => {
                       setShowAddSale(true);
                       onSelectCounter(counter._id);
+                      setSelectedCounterName(counter.name)
                     }}
                     className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                     title="Add sale"
@@ -182,6 +144,47 @@ export default function CounterList({
           ))}
         </div>
       </div>
+      {/* Edit Counter Modal */}
+      {editingCounter && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Edit Counter</h2>
+              <CounterForm
+                initialData={editingCounter}
+                onSubmit={handleUpdateCounter}
+                onCancel={() => setEditingCounter(null)}
+                isEditing={true}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Sale Form */}
+      {showAddSale && selectedCounter && (
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6 ">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">Record New Sale for {selectedCounterName}</h3>
+            <button
+              onClick={() => setShowAddSale(false)}
+              className="text-gray-400 hover:text-gray-500"
+            >
+              <span className="sr-only">Close</span>
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <AddSaleForm
+            counterId={selectedCounter}
+            onSuccess={() => setShowAddSale(false)}
+            onCancel={() => setShowAddSale(false)}
+          />
+        </div>
+      )}
+
+     
     </div>
   );
 }

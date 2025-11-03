@@ -84,25 +84,10 @@ export default function CountersClient() {
           </div>
         </div>
       )}
-
-      {showForm && (
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-          <div className="px-4 py-5 sm:p-6">
-            <h2 className="text-lg font-medium text-gray-900">Add New Counter</h2>
-            <div className="mt-4">
-              <CounterForm 
-                onSubmit={handleCreateCounter} 
-                onCancel={() => setShowForm(false)} 
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <CounterList 
-            counters={counters || []} 
+      <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+        <div className="lg:col-span-3">
+          <CounterList
+            counters={counters || []}
             selectedCounter={selectedCounter}
             onSelectCounter={setSelectedCounter}
             onUpdateCounter={handleUpdateCounter}
@@ -110,7 +95,7 @@ export default function CountersClient() {
             onAddSale={handleAddSale}
           />
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           {selectedCounter ? (
             <div className="space-y-6">
               <CounterStats counterId={selectedCounter} />
@@ -141,6 +126,55 @@ export default function CountersClient() {
           )}
         </div>
       </div>
+
+      {showForm && (
+        // <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+        //   <div className="px-4 py-5 sm:p-6">
+        //     <h2 className="text-lg font-medium text-gray-900">Add New Counter</h2>
+        //     <div className="mt-4">
+
+        //       <CounterForm 
+        //         onSubmit={handleCreateCounter} 
+        //         onCancel={() => setShowForm(false)} 
+        //       />
+        //     </div>
+        //   </div>
+        // </div>
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          {/* Overlay background */}
+          <div
+            className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"
+            onClick={() => setShowForm(false)}
+          ></div>
+
+          {/* Modal content */}
+          <div className="relative bg-white shadow-2xl rounded-2xl w-full max-w-lg mx-4 sm:mx-0 overflow-hidden animate-fadeIn">
+            <div className="px-6 py-5 sm:p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b pb-3 mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Add New Counter</h2>
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="text-gray-500 hover:text-gray-700 text-xl leading-none"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Form section */}
+              <div>
+                <CounterForm
+                  onSubmit={handleCreateCounter}
+                  onCancel={() => setShowForm(false)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+      )}
+
+
     </div>
   );
 }
