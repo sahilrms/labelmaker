@@ -25,7 +25,8 @@ export const SalesProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch sales');
+        console.error('Failed to fetch sales', response);
+        // throw new Error('Failed to fetch sales');
       }
 
       const data = await response.json();

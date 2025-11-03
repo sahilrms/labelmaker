@@ -3,6 +3,11 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   email: {
     type: String,
     required: true,
@@ -13,21 +18,19 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-  },
-  // Add this field for testing only
-  plainPassword: {
-    type: String,
-    select: false, // This will exclude it from queries by default
+    select: false,
   },
   role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user',
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  plainPassword: {
+    type: String,
+    select: false,
   },
+}, {
+  timestamps: true,
 });
 
 // Hash password before saving

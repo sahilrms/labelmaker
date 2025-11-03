@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import PrintHistory from '../components/PrintHistory';
+import toast from 'react-hot-toast';
 
 export default function PrintHistoryPage() {
   const [history, setHistory] = useState([]);
@@ -30,6 +31,7 @@ export default function PrintHistoryPage() {
         })) : [];
         setHistory(formattedData);
       } catch (err) {
+        toast.error(err.message);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -39,8 +41,8 @@ export default function PrintHistoryPage() {
     fetchPrintHistory();
   }, []);
 
-  if (loading) return <Layout>Loading print history...</Layout>;
-  if (error) return <Layout>Error: {error}</Layout>;
+  if (loading) return <div>Loading print history...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     // <Layout>

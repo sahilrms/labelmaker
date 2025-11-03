@@ -6,6 +6,7 @@ export const cartState = atom({
   default: {
     items: [],
     total: 0,
+    itemCount: 0,
   },
 });
 

@@ -1,7 +1,8 @@
 // pages/api/auth/[...nextauth].js
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { connectToDatabase } from '../../../lib/mongodb';
+import dbConnect from '../../../lib/dbConnect';
+import User from '../../../models/User';
 
 export const authOptions = {
   providers: [
@@ -14,19 +15,25 @@ export const authOptions = {
       async authorize(credentials) {
         try {
           console.log('Authenticating user:', credentials.email);
-          const { db } = await connectToDatabase();
-          const user = await db.collection('users').findOne({
+          
+          // Connect to MongoDB using Mongoose
+          await dbConnect();
+          
+          // Find user by email using Mongoose model
+          // Find user without lean() to access instance methods
+          const user = await User.findOne({
             email: credentials.email,
-          });
-
+          }).select('+password'); // Explicitly include password field
+          
+          console.log("User found:", user ? 'Yes' : 'No');
           if (!user) {
             console.log('No user found with email:', credentials.email);
             return null;
           }
 
-          // In a real app, use proper password hashing
-          const isValidPassword = credentials.password === user.password || 
-                               credentials.password === user.plainPassword;
+          // Compare password using the instance method
+          const isValidPassword = await user.comparePassword(credentials.password);
+          console.log('Password validation result:', isValidPassword);
 
           if (!isValidPassword) {
             console.log('Invalid password for user:', credentials.email);

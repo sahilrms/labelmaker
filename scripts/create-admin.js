@@ -2,7 +2,7 @@ const { MongoClient } = require('mongodb');
 const bcrypt = require('bcryptjs');
 
 async function createAdminUser() {
-  const uri = 'mongodb://localhost:27017/labelmaker';
+  const uri = 'mongodb://localhost:27017/label-maker';
   const client = new MongoClient(uri);
 
   try {
