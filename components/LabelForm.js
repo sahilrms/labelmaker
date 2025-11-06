@@ -63,14 +63,16 @@ export default function LabelForm() {
       },
     ]);
 
-    // Reset form
+    // Reset form with default expiry date
+    const nextYear = new Date();
+    nextYear.setFullYear(nextYear.getFullYear() + 1);
     setFormData({
       name: "",
       netContent: "",
       mrp: "",
       quantity: 1,
       packingDate: new Date().toISOString().split("T")[0],
-      expiryDate: "",
+      expiryDate: nextYear.toISOString().split("T")[0],
     });
   };
 
@@ -83,6 +85,9 @@ export default function LabelForm() {
 
   // Reset everything
   const resetForm = () => {
+    const nextYear = new Date();
+    nextYear.setFullYear(nextYear.getFullYear() + 1);
+    
     setItems([]);
     setItemList([]);
     setBatchNumbers({});
@@ -93,7 +98,7 @@ export default function LabelForm() {
       mrp: "",
       quantity: 1,
       packingDate: new Date().toISOString().split("T")[0],
-      expiryDate: "",
+      expiryDate: nextYear.toISOString().split("T")[0],
     });
   };
 
