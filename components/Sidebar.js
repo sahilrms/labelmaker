@@ -8,7 +8,8 @@ import {
   CubeIcon,
   Cog6ToothIcon,
   UserCircleIcon,
-  ClockIcon
+  ClockIcon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
@@ -18,6 +19,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { name: 'Dashboard', href: '/', icon: HomeIcon, current: router.pathname === '/' },
     { name: 'Label Maker', href: '/label-maker', icon: TagIcon, current: router.pathname === '/label-maker' },
     { name: 'Print History', href: '/print-history', icon: ClockIcon, current: router.pathname === '/print-history' },
+    { name: 'Sales', href: '/sales/dashboard', icon: CurrencyDollarIcon, current: router.pathname.startsWith('/sales') },
     { name: 'Products', href: '#', icon: CubeIcon, current: false },
     { name: 'Settings', href: '#', icon: Cog6ToothIcon, current: false },
   ];

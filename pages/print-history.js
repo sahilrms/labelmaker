@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
+import PrintHistory from '../components/PrintHistory';
+import toast from 'react-hot-toast';
 
-export default function PrintHistory() {
+export default function PrintHistoryPage() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,8 +14,24 @@ export default function PrintHistory() {
         const response = await fetch('/api/print-history');
         if (!response.ok) throw new Error('Failed to fetch print history');
         const data = await response.json();
-        setHistory(Array.isArray(data) ? data : []);
+        // Transform the data to match the PrintHistory component's expected format
+        const formattedData = Array.isArray(data) ? data.map(item => ({
+          id: item._id || item.id,
+          documentName: item.productName || 'Untitled Label',
+          printedAt: item.printDate || new Date().toISOString(),
+          pageCount: item.quantity || 1,
+          note: `Batch: ${item.batchNumber || 'N/A'} | Pack Date: ${item.packingDate ? new Date(item.packingDate).toLocaleDateString() : 'N/A'} | Expiry: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}`,
+          meta: {
+            price: item.price ? `₹${item.price.toFixed(2)}` : 'N/A',
+            batchNumber: item.batchNumber,
+            packDate: item.packingDate,
+            expiryDate: item.expiryDate,
+            quantity: item.quantity
+          }
+        })) : [];
+        setHistory(formattedData);
       } catch (err) {
+        toast.error(err.message);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -23,57 +41,20 @@ export default function PrintHistory() {
     fetchPrintHistory();
   }, []);
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString();
-  };
-
-  if (loading) return <Layout>Loading print history...</Layout>;
-  if (error) return <Layout>Error: {error}</Layout>;
+  if (loading) return <div>Loading print history...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Print History</h1>
-      
-      {history.length === 0 ? (
-        <p>No print history found.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="py-2 px-4 border">Item Name</th>
-                <th className="py-2 px-4 border">Batch Number</th>
-                <th className="py-2 px-4 border">Pack Date</th>
-                <th className="py-2 px-4 border">Expiry Date</th>
-                <th className="py-2 px-4 border">Qty</th>
-                <th className="py-2 px-4 border">Price</th>
-                <th className="py-2 px-4 border">Print Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((record) => (
-                <tr key={record._id || record.id} className="hover:bg-gray-50">
-                  <td className="py-2 px-4 border">{record.productName}</td>
-                  <td className="py-2 px-4 border">{record.batchNumber}</td>
-                  <td className="py-2 px-4 border">
-                    {record.packingDate ? new Date(record.packingDate).toLocaleDateString() : 'N/A'}
-                  </td>
-                  <td className="py-2 px-4 border">
-                    {record.expiryDate ? new Date(record.expiryDate).toLocaleDateString() : 'N/A'}
-                  </td>
-                  <td className="py-2 px-4 border text-center">{record.quantity || 1}</td>
-                  <td className="py-2 px-4 border text-right">
-                    {record.price ? `₹${record.price.toFixed(2)}` : 'N/A'}
-                  </td>
-                  <td className="py-2 px-4 border">
-                    {record.printDate ? formatDate(record.printDate) : 'N/A'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+    // <Layout>
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">Print History</h1>
+        
+        {history.length === 0 ? (
+          <p className="text-gray-600">No print history found.</p>
+        ) : (
+          <PrintHistory prints={history} />
+        )}
+      </div>
+    // </Layout>
   );
 }

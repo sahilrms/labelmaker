@@ -1,20 +1,19 @@
+// pages/index.js
 import { useRouter } from 'next/router';
-export default function Dashboard() {
-  const router = useRouter();
+import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 
-  const handleCreateLabel = () => {
-    router.push('/label-maker');
-  };
-  return (
-    <div className="bg-white rounded-lg shadow p-6" >
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-800">Welcome to Label Maker</h2>
-        <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-          onClick={handleCreateLabel}>
-          Create Label
-        </button>
-      </div>
-      <p className="mt-2 text-gray-600">Select an option from the sidebar to get started.</p>
-    </div>
-  );
+export default function Home() {
+  const router = useRouter();
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
+    } else if (status === 'authenticated') {
+      router.push('/dashboard');
+    }
+  }, [status, router]);
+
+  return null; // This will be replaced by the redirect
 }
